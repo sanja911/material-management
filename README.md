@@ -1,5 +1,5 @@
 
-# Material Management Module Documentation
+# Material Management
 
 ## Overview
 This Odoo module manages materials and their related suppliers with the following features:
