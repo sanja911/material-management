@@ -1,0 +1,61 @@
+<odoo>
+    <record id="view_material_tree" model="ir.ui.view">
+        <field name="name">material.tree</field>
+        <field name="model">material.material</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="type"/>
+                <field name="buy_price"/>
+                <field name="supplier_id"/>
+            </tree>
+        </field>
+    </record>
+    
+    <record id="view_material_form" model="ir.ui.view">
+        <field name="name">material.form</field>
+        <field name="model">material.material</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="code"/>
+                        <field name="name"/>
+                        <field name="type"/>
+                        <field name="buy_price"/>
+                        <field name="supplier_id"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <record id="view_material_search" model="ir.ui.view">
+        <field name="name">material.search</field>
+        <field name="model">material.material</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code"/>
+                <field name="name"/>
+                <filter name="filter_fabric" string="Fabric" domain="[('type','=','fabric')]"/>
+                <filter name="filter_jeans" string="Jeans" domain="[('type','=','jeans')]"/>
+                <filter name="filter_cotton" string="Cotton" domain="[('type','=','cotton')]"/>
+            </search>
+        </field>
+    </record>
+    
+    <menuitem id="menu_material_root" name="Materials" sequence="10"/>
+    <menuitem id="menu_material" name="Material Management" parent="menu_material_root"/>
+    
+    <record id="action_material" model="ir.actions.act_window">
+        <field name="name">Materials</field>
+        <field name="res_model">material.material</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first material</p>
+        </field>
+    </record>
+    
+    <menuitem id="menu_material_action" name="Materials" parent="menu_material" action="action_material"/>
+</odoo>
