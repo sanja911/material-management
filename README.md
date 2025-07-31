@@ -1,33 +1,120 @@
-[![Build Status](https://runbot.odoo.com/runbot/badge/flat/1/master.svg)](https://runbot.odoo.com/runbot)
-[![Tech Doc](https://img.shields.io/badge/master-docs-875A7B.svg?style=flat&colorA=8F8F8F)](https://www.odoo.com/documentation/master)
-[![Help](https://img.shields.io/badge/master-help-875A7B.svg?style=flat&colorA=8F8F8F)](https://www.odoo.com/forum/help-1)
-[![Nightly Builds](https://img.shields.io/badge/master-nightly-875A7B.svg?style=flat&colorA=8F8F8F)](https://nightly.odoo.com/)
 
-Odoo
-----
+# Material Management Module Documentation
 
-Odoo is a suite of web based open source business apps.
+## Overview
+This Odoo module manages materials and their related suppliers with the following features:
+- Material registration with auto-generated codes
+- Validation for minimum buy price
+- Supplier relationship management
+- REST API endpoints
+- Comprehensive unit tests
 
-The main Odoo Apps include an <a href="https://www.odoo.com/page/crm">Open Source CRM</a>,
-<a href="https://www.odoo.com/page/website-builder">Website Builder</a>,
-<a href="https://www.odoo.com/page/e-commerce">eCommerce</a>,
-<a href="https://www.odoo.com/page/warehouse">Warehouse Management</a>,
-<a href="https://www.odoo.com/page/project-management">Project Management</a>,
-<a href="https://www.odoo.com/page/accounting">Billing &amp; Accounting</a>,
-<a href="https://www.odoo.com/page/point-of-sale">Point of Sale</a>,
-<a href="https://www.odoo.com/page/employees">Human Resources</a>,
-<a href="https://www.odoo.com/page/lead-automation">Marketing</a>,
-<a href="https://www.odoo.com/page/manufacturing">Manufacturing</a>,
-<a href="https://www.odoo.com/#apps">...</a>
+## Entity Relationship Diagram
+```mermaid
+erDiagram
+    MATERIAL ||--o{ res_partner  : "partner_id"
+    MATERIAL {
+        string code "MAT/0001 (Sequence)"
+        string name
+        enum type "fabric|jeans|cotton"
+        float buy_price "greater than equal 100"
+    }
+    
+    res_partner {
+        string name
+        bool is_company
+        bool is_material_supplier
+    }
+    
+    IR_SEQUENCE ||--o{ MATERIAL : "Generates code"
+```
 
-Odoo Apps can be used as stand-alone applications, but they also integrate seamlessly so you get
-a full-featured <a href="https://www.odoo.com">Open Source ERP</a> when you install several Apps.
+## Installation
+1. Clone module to Odoo addons directory
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Install module in Odoo:
+   ```bash
+   ./odoo-bin -i material_management -d your_database
+   ```
 
+## Model Specifications
 
-Getting started with Odoo
--------------------------
+### Material Model
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| code | Char | Auto | Auto-generated (MAT/0001) |
+| name | Char | Yes | Material name |
+| type | Selection | Yes | fabric/jeans/cotton |
+| buy_price | Float | Yes | Must be ≥ 100 |
+| supplier_id | Many2one | Yes | Related to res.partner table |
 
-For a standard installation please follow the <a href="https://www.odoo.com/documentation/14.0/administration/install.html">Setup instructions</a>
-from the documentation.
+### API Endpoints
 
-To learn the software, we recommend the <a href="https://www.odoo.com/slides">Odoo eLearning</a>, or <a href="https://www.odoo.com/page/scale-up-business-game">Scale-up</a>, the <a href="https://www.odoo.com/page/scale-up-business-game">business game</a>. Developers can start with <a href="https://www.odoo.com/documentation/14.0/developer/howtos.html">the developer tutorials</a>
+#### Create Material (POST)
+```http
+POST /api/materials
+Content-Type: application/json
+
+{
+  "name": "Premium Cotton",
+  "type": "cotton",
+  "buy_price": 150,
+  "supplier_id": 1
+}
+```
+
+#### Response
+```json
+{
+  "success": true,
+  "id": 1,
+  "code": "MAT/0001"
+}
+```
+
+## Testing
+Run tests with:
+```bash
+./odoo-bin --test-enable -d test_db --test-tags /material_management
+```
+
+### Test Cases
+1. `test_create_material`: Valid material creation
+2. `test_price_validation`: Price < 100 validation
+3. `test_auto_code`: Sequence generation
+4. `test_filter_by_type`: Material filtering
+
+## Sequence Configuration
+Configured in `data/sequence.xml`:
+```xml
+<record id="seq_material_code" model="ir.sequence">
+  <field name="prefix">MAT/</field>
+  <field name="padding">4</field>
+</record>
+```
+
+## Troubleshooting
+| Error | Solution |
+|-------|----------|
+| 400 Bad Request | Check request Content-Type |
+| NULL constraint | Ensure all required fields are sent |
+| Price validation | Buy price must be ≥ 100 |
+
+I found some general error on odoo14, [this link](https://dev.to/jeevanizm/odoo-v14-and-issues-with-requirementstxt-2o23) maybe can help  you to solve the issue
+
+## License
+MIT License - See LICENSE file for details
+```
+
+Key features of this documentation:
+1. Clear ERD visualization using Mermaid
+2. Complete API specification with examples
+3. Detailed model structure
+4. Testing instructions
+5. Sequence configuration details
+6. Troubleshooting guide
+
+The markdown format makes it easy to maintain and view in any markdown viewer or version control system like GitHub.
